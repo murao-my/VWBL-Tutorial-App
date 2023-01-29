@@ -1,10 +1,15 @@
-import { createContainer } from 'unstated-next';
-import { useState } from 'react';
-import Web3 from 'web3';
-import { ManageKeyType, UploadContentType, UploadMetadataType, VWBL } from 'vwbl-sdk';
+import { createContainer } from "unstated-next";
+import { useState } from "react";
+import Web3 from "web3";
+import {
+  ManageKeyType,
+  UploadContentType,
+  UploadMetadataType,
+  VWBL,
+} from "vwbl-sdk";
 
 const useVWBL = () => {
-  const [userAddress, setUserAddress] = useState('');
+  const [userAddress, setUserAddress] = useState("");
   const [web3, setWeb3] = useState();
   const [vwbl, setVwbl] = useState();
 
@@ -12,40 +17,42 @@ const useVWBL = () => {
     try {
       const { ethereum } = window;
       if (!ethereum) {
-        throw new Error('Please install MetaMask!');
+        throw new Error("Please install MetaMask!");
       } else {
-        console.log('MetaMask is installed!', ethereum);
+        console.log("MetaMask is installed!", ethereum);
       }
 
-      await ethereum.request({ method: 'eth_requestAccounts' });
+      await ethereum.request({ method: "eth_requestAccounts" });
       const web3 = new Web3(ethereum);
       const accounts = await web3.eth.getAccounts();
       const currentAccount = accounts[0];
       setWeb3(web3);
       setUserAddress(currentAccount);
 
+      //network 確認
       const connectedChainId = await web3.eth.getChainId();
       const properChainId = parseInt(process.env.REACT_APP_CHAIN_ID);
       if (connectedChainId !== properChainId) {
         await ethereum.request({
-          method: 'wallet_switchEthereumChain',
+          method: "wallet_switchEthereumChain",
           params: [{ chainId: web3.utils.toHex(properChainId) }],
         });
       }
 
       initVwbl(web3);
     } catch (error) {
-      if (error.code === 4001) {
-        alert('Please connect Your Wallet.');
-      } else {
-        alert(error.message);
-      }
+      // if (error.code === 4001) {
+      //   alert('Please connect Your Wallet.');
+      // } else {
+      //   alert(error.message);
+      // }
+      alert(error.message);
       console.error(error);
     }
   };
 
   const disconnectWallet = () => {
-    setUserAddress('');
+    setUserAddress("");
     setWeb3(undefined);
     setVwbl(undefined);
   };
